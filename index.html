@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Madrid — Capital de España</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #C4122F;
+      --gold: #D4A843;
+      --dark: #1A1A1A;
+      --cream: #FAF6F0;
+      --text: #3A3A3A;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(196,18,47,.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(212,168,67,.1) 0%, transparent 50%),
+        var(--cream);
+    }
+
+    .hero::before {
+      content: '★';
+      position: absolute;
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5rem;
+      color: var(--red);
+      opacity: .6;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: .4; transform: translateX(-50%) scale(1); }
+      50% { opacity: .8; transform: translateX(-50%) scale(1.15); }
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(4rem, 12vw, 10rem);
+      color: var(--dark);
+      letter-spacing: -0.03em;
+      line-height: .9;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 span {
+      display: block;
+      font-size: .22em;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: .8rem;
+    }
+
+    .hero p {
+      max-width: 520px;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      font-weight: 300;
+      color: #666;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: .75rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #aaa;
+      animation: bob 2s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── Datos ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      background: #e0dcd6;
+    }
+
+    .stat {
+      background: var(--cream);
+      padding: 3rem 2rem;
+      text-align: center;
+      transition: background .3s;
+    }
+
+    .stat:hover { background: #f3efe8; }
+
+    .stat .number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .stat .label {
+      font-size: .8rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: #999;
+      margin-top: .5rem;
+    }
+
+    /* ── Secciones ── */
+    section {
+      padding: 5rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: .5rem;
+    }
+
+    section h2::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 3px;
+      background: var(--red);
+      margin-top: .6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    section p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      font-weight: 300;
+      color: #555;
+      margin-bottom: 1.2rem;
+    }
+
+    /* ── Cards de lugares ── */
+    .places {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .place {
+      border: 1px solid #e0dcd6;
+      padding: 2rem;
+      position: relative;
+      transition: all .35s ease;
+      cursor: default;
+    }
+
+    .place:hover {
+      border-color: var(--red);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.06);
+    }
+
+    .place .icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .place h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--dark);
+      margin-bottom: .5rem;
+    }
+
+    .place p {
+      font-size: .9rem;
+      line-height: 1.6;
+      color: #888;
+      margin: 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid #e0dcd6;
+      font-size: .8rem;
+      color: #aaa;
+      letter-spacing: .1em;
+    }
+
+    footer span { color: var(--red); }
+
+    /* ── Fade-in animation ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>
+      <span>Bienvenido a</span>
+      Madrid
+    </h1>
+    <p>La capital de España, donde la historia, la cultura y la vida se encuentran en cada esquina.</p>
+    <div class="scroll-hint">↓ Descubre más</div>
+  </div>
+
+  <!-- Datos -->
+  <div class="stats">
+    <div class="stat fade-in">
+      <div class="number">3,3M</div>
+      <div class="label">Habitantes</div>
+    </div>
+    <div class="stat fade-in">
+      <div class="number">1561</div>
+      <div class="label">Capital desde</div>
+    </div>
+    <div class="stat fade-in">
+      <div class="number">667m</div>
+      <div class="label">Altitud</div>
+    </div>
+    <div class="stat fade-in">
+      <div class="number">300+</div>
+      <div class="label">Días de sol / año</div>
+    </div>
+  </div>
+
+  <!-- Sobre Madrid -->
+  <section class="fade-in">
+    <h2>La ciudad</h2>
+    <p>Madrid es una ciudad que nunca duerme. Desde los cafés centenarios de la Gran Vía hasta los bares de tapas del barrio de La Latina, cada rincón respira autenticidad y energía.</p>
+    <p>Con una mezcla única de arquitectura histórica y espacios modernos, Madrid es tanto un museo al aire libre como una capital europea vibrante y cosmopolita.</p>
+  </section>
+
+  <!-- Lugares -->
+  <section class="fade-in">
+    <h2>Lugares imprescindibles</h2>
+    <div class="places">
+      <div class="place">
+        <div class="icon">🏛️</div>
+        <h3>Museo del Prado</h3>
+        <p>Una de las pinacotecas más importantes del mundo, con obras de Velázquez, Goya y El Bosco.</p>
+      </div>
+      <div class="place">
+        <div class="icon">🌳</div>
+        <h3>Parque del Retiro</h3>
+        <p>125 hectáreas de jardines, el Palacio de Cristal y paseos en barca por el estanque.</p>
+      </div>
+      <div class="place">
+        <div class="icon">👑</div>
+        <h3>Palacio Real</h3>
+        <p>La residencia oficial de los Reyes de España, con más de 3.400 habitaciones.</p>
+      </div>
+      <div class="place">
+        <div class="icon">🍽️</div>
+        <h3>Mercado de San Miguel</h3>
+        <p>Gastronomía española en un edificio de hierro de principios del siglo XX.</p>
+      </div>
+      <div class="place">
+        <div class="icon">🌆</div>
+        <h3>Gran Vía</h3>
+        <p>La arteria principal de Madrid, llena de teatros, tiendas y una arquitectura espectacular.</p>
+      </div>
+      <div class="place">
+        <div class="icon">⚽</div>
+        <h3>Santiago Bernabéu</h3>
+        <p>El estadio del Real Madrid, un templo del fútbol mundial recientemente renovado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gastronomía -->
+  <section class="fade-in">
+    <h2>Gastronomía</h2>
+    <p>Madrid es la capital gastronómica de España. No te puedes ir sin probar un bocadillo de calamares en la Plaza Mayor, unas croquetas caseras, un cocido madrileño en invierno o unas patatas bravas con salsa picante.</p>
+    <p>Y por supuesto, la tradición del vermú de los domingos en La Latina es un ritual que ningún madrileño se pierde.</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    Hecho con <span>♥</span> — Madrid 2026
+  </footer>
+
+  <script>
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
