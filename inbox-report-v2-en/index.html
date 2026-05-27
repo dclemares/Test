@@ -355,10 +355,10 @@
 <div class="container">
 
   <div class="summary">
-    <div class="stat"><div class="num" id="stat-total">54</div><div class="label">Total issues</div></div>
+    <div class="stat"><div class="num" id="stat-total">51</div><div class="label">Total issues</div></div>
     <div class="stat"><div class="num" id="stat-categories">11</div><div class="label">Categories</div></div>
     <div class="stat"><div class="num" id="stat-captures">28</div><div class="label">Unique screenshots</div></div>
-    <div class="stat"><div class="num" id="stat-critical">15</div><div class="label">Critical</div></div>
+    <div class="stat"><div class="num" id="stat-critical">13</div><div class="label">Critical</div></div>
   </div>
 
   <div class="filters">
@@ -517,42 +517,28 @@
   <section class="category" id="billing">
     <div class="category-header">
       <h2>2. Billing, costs and feature usage (PAYG)</h2>
-      <span class="badge count">6 issues</span>
+      <span class="badge count">3 issues</span>
       <span class="badge critical">Critical</span>
     </div>
 
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.1</div>
-        <div class="issue-title">SMS cost is not shown to the user</div>
+        <div class="issue-title">The SMS cost shown is 2 cents and doesn't look like the actual cost passed on</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
       <div class="issue-body">
-        <p>The interface does not display the SMS cost (neither per unit nor cumulative) before or after sending.</p>
+        <p>The per-SMS cost displayed in the interface is 2 cents. We believe that is not the actual cost passed on to the end customer, so the figure shown does not reflect what is really being charged or what the customer is paying.</p>
       </div>
       <div class="issue-imgs">
-        <img src="images/image12.png" alt="SMS cost not visible">
-        <img src="images/image14.png" alt="SMS cost not visible 2">
+        <img src="images/image12.png" alt="SMS cost shown as 2 cents">
+        <img src="images/image14.png" alt="SMS cost shown as 2 cents 2">
       </div>
     </div>
 
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.2</div>
-        <div class="issue-title">There is no logic to record the maintenance fee in feature usage</div>
-        <span class="severity-pill sev-critical">Critical</span>
-      </div>
-      <div class="issue-body">
-        <p>There is no defined flow for the maintenance fee to be counted within feature usage for billing purposes.</p>
-      </div>
-      <div class="issue-imgs">
-        <img src="images/image12.png" alt="Monthly maintenance fee not recorded in feature usage">
-      </div>
-    </div>
-
-    <div class="issue">
-      <div class="issue-head">
-        <div class="issue-num">2.3</div>
         <div class="issue-title">WhatsApp cost flow is unclear</div>
         <span class="severity-pill sev-high">High</span>
       </div>
@@ -567,7 +553,7 @@
 
     <div class="issue">
       <div class="issue-head">
-        <div class="issue-num">2.4</div>
+        <div class="issue-num">2.3</div>
         <div class="issue-title">PAYG: no top up required before enabling paid features</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
@@ -577,35 +563,6 @@
       <div class="impact-block"><strong>Impact:</strong> financial and operational risk.</div>
       <div class="issue-imgs">
         <img src="images/image8.png" alt="PAYG channels enabled without top up">
-      </div>
-    </div>
-
-    <div class="issue">
-      <div class="issue-head">
-        <div class="issue-num">2.5</div>
-        <div class="issue-title">Feature usage is not tracked</div>
-        <span class="severity-pill sev-critical">Critical</span>
-      </div>
-      <div class="issue-body">
-        <p>INBOX feature usage is not being recorded in feature usage, so customers cannot be charged based on their consumption.</p>
-      </div>
-    </div>
-
-    <div class="issue">
-      <div class="issue-head">
-        <div class="issue-num">2.6</div>
-        <div class="issue-title">Dashboard phone calls with no cost shown or recorded</div>
-        <span class="severity-pill sev-critical">Critical</span>
-      </div>
-      <div class="issue-body">
-        <p>Phone calls can be made from the dashboard. This action has a high cost but:</p>
-        <ul>
-          <li>The cost is not shown to the user before the call.</li>
-          <li>It is not added to feature usage for billing.</li>
-        </ul>
-      </div>
-      <div class="issue-imgs">
-        <img src="images/image23.png" alt="Call icon available in the chat header">
       </div>
     </div>
   </section>

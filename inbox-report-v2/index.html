@@ -355,10 +355,10 @@
 <div class="container">
 
   <div class="summary">
-    <div class="stat"><div class="num" id="stat-total">54</div><div class="label">Issues totales</div></div>
+    <div class="stat"><div class="num" id="stat-total">51</div><div class="label">Issues totales</div></div>
     <div class="stat"><div class="num" id="stat-categories">11</div><div class="label">Categorías</div></div>
     <div class="stat"><div class="num" id="stat-captures">28</div><div class="label">Capturas únicas</div></div>
-    <div class="stat"><div class="num" id="stat-critical">15</div><div class="label">Críticos</div></div>
+    <div class="stat"><div class="num" id="stat-critical">13</div><div class="label">Críticos</div></div>
   </div>
 
   <div class="filters">
@@ -517,42 +517,28 @@
   <section class="category" id="billing">
     <div class="category-header">
       <h2>2. Facturación, costes y feature usage (PAYG)</h2>
-      <span class="badge count">6 issues</span>
+      <span class="badge count">3 issues</span>
       <span class="badge critical">Critical</span>
     </div>
 
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.1</div>
-        <div class="issue-title">No se muestra el coste del SMS al usuario</div>
+        <div class="issue-title">El coste del SMS mostrado es de 2 céntimos y no parece el real repercutido</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
       <div class="issue-body">
-        <p>La interfaz no indica el coste por SMS, ni unitario ni acumulado, antes ni después del envío.</p>
+        <p>El coste por SMS que aparece en la interfaz es de 2 céntimos. Creemos que ese no es el coste real repercutido al cliente final, por lo que el importe mostrado no refleja lo que realmente se está cobrando ni lo que asume el cliente.</p>
       </div>
       <div class="issue-imgs">
-        <img src="images/image12.png" alt="Coste SMS no visible">
-        <img src="images/image14.png" alt="Coste SMS no visible 2">
+        <img src="images/image12.png" alt="Coste SMS mostrado como 2 céntimos">
+        <img src="images/image14.png" alt="Coste SMS mostrado como 2 céntimos 2">
       </div>
     </div>
 
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.2</div>
-        <div class="issue-title">No existe lógica para registrar el coste de mantenimiento en feature usage</div>
-        <span class="severity-pill sev-critical">Critical</span>
-      </div>
-      <div class="issue-body">
-        <p>No hay un flujo definido para que el coste de mantenimiento se contabilice dentro de feature usage de cara a su facturación.</p>
-      </div>
-      <div class="issue-imgs">
-        <img src="images/image12.png" alt="Maintenance fee mensual sin registro en feature usage">
-      </div>
-    </div>
-
-    <div class="issue">
-      <div class="issue-head">
-        <div class="issue-num">2.3</div>
         <div class="issue-title">Flujo de coste de WhatsApp poco claro</div>
         <span class="severity-pill sev-high">High</span>
       </div>
@@ -567,7 +553,7 @@
 
     <div class="issue">
       <div class="issue-head">
-        <div class="issue-num">2.4</div>
+        <div class="issue-num">2.3</div>
         <div class="issue-title">PAYG: no se exige top up antes de activar funcionalidades de pago</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
@@ -577,35 +563,6 @@
       <div class="impact-block"><strong>Impacto:</strong> riesgo financiero y operativo.</div>
       <div class="issue-imgs">
         <img src="images/image8.png" alt="Canales PAYG activables sin top up">
-      </div>
-    </div>
-
-    <div class="issue">
-      <div class="issue-head">
-        <div class="issue-num">2.5</div>
-        <div class="issue-title">No hay registro de uso de la funcionalidad en feature usage</div>
-        <span class="severity-pill sev-critical">Critical</span>
-      </div>
-      <div class="issue-body">
-        <p>El uso de las funcionalidades de INBOX no se está registrando en feature usage, por lo que no es posible cobrar al cliente en base a su consumo.</p>
-      </div>
-    </div>
-
-    <div class="issue">
-      <div class="issue-head">
-        <div class="issue-num">2.6</div>
-        <div class="issue-title">Llamadas desde el dashboard sin coste mostrado ni registrado</div>
-        <span class="severity-pill sev-critical">Critical</span>
-      </div>
-      <div class="issue-body">
-        <p>Es posible realizar llamadas telefónicas desde el dashboard. Esta acción tiene un coste elevado pero:</p>
-        <ul>
-          <li>El coste no se muestra al usuario antes de la llamada.</li>
-          <li>No está añadida a feature usage para su cobro.</li>
-        </ul>
-      </div>
-      <div class="issue-imgs">
-        <img src="images/image23.png" alt="Icono de llamada disponible en el header del chat">
       </div>
     </div>
   </section>
