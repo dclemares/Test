@@ -355,10 +355,10 @@
 <div class="container">
 
   <div class="summary">
-    <div class="stat"><div class="num">47</div><div class="label">Issues totales</div></div>
-    <div class="stat"><div class="num">11</div><div class="label">Categorías</div></div>
-    <div class="stat"><div class="num">28</div><div class="label">Capturas únicas</div></div>
-    <div class="stat"><div class="num">14</div><div class="label">Críticos</div></div>
+    <div class="stat"><div class="num" id="stat-total">53</div><div class="label">Issues totales</div></div>
+    <div class="stat"><div class="num" id="stat-categories">11</div><div class="label">Categorías</div></div>
+    <div class="stat"><div class="num" id="stat-captures">28</div><div class="label">Capturas únicas</div></div>
+    <div class="stat"><div class="num" id="stat-critical">14</div><div class="label">Críticos</div></div>
   </div>
 
   <div class="filters">
@@ -1298,6 +1298,24 @@
       medium: document.getElementById('bucket-count-medium'),
       low: document.getElementById('bucket-count-low')
     };
+
+    // Auto-compute summary stats from the DOM so they always match reality
+    (function recomputeStats() {
+      const allIssues = document.querySelectorAll('section.category .issue');
+      const total = allIssues.length;
+      const critical = document.querySelectorAll('section.category .issue .sev-critical').length;
+      const categories = document.querySelectorAll('section.category').length;
+      const imgs = new Set();
+      document.querySelectorAll('section.category .issue img[src]').forEach(i => imgs.add(i.getAttribute('src')));
+      const totalEl = document.getElementById('stat-total');
+      const critEl = document.getElementById('stat-critical');
+      const catEl = document.getElementById('stat-categories');
+      const capEl = document.getElementById('stat-captures');
+      if (totalEl) totalEl.textContent = total;
+      if (critEl) critEl.textContent = critical;
+      if (catEl) catEl.textContent = categories;
+      if (capEl) capEl.textContent = imgs.size;
+    })();
 
     // Cache each issue with a placeholder marking its original DOM position
     const issues = Array.from(document.querySelectorAll('section.category .issue')).map(el => {
