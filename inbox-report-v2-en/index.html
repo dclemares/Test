@@ -524,15 +524,15 @@
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.1</div>
-        <div class="issue-title">The SMS cost shown is 2 cents and doesn't look like the actual cost passed on</div>
+        <div class="issue-title">SMS cost is not shown to the user</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
       <div class="issue-body">
-        <p>The per-SMS cost displayed in the interface is 2 cents. We believe that is not the actual cost passed on to the end customer, so the figure shown does not reflect what is really being charged or what the customer is paying.</p>
+        <p>The interface does not display the SMS cost (neither per unit nor cumulative) before or after sending.</p>
       </div>
       <div class="issue-imgs">
-        <img src="images/image12.png" alt="SMS cost shown as 2 cents">
-        <img src="images/image14.png" alt="SMS cost shown as 2 cents 2">
+        <img src="images/image12.png" alt="SMS cost not visible">
+        <img src="images/image14.png" alt="SMS cost not visible 2">
       </div>
     </div>
 
@@ -569,15 +569,12 @@
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.4</div>
-        <div class="issue-title">Dashboard phone calls with no cost shown or recorded</div>
+        <div class="issue-title">The call cost recorded in feature usage is 2 cents and doesn't look like the actual cost passed on</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
       <div class="issue-body">
-        <p>Phone calls can be made from the dashboard. This action has a high cost but:</p>
-        <ul>
-          <li>The cost is not shown to the user before the call.</li>
-          <li>It is not added to feature usage for billing.</li>
-        </ul>
+        <p>Phone calls can be made from the dashboard and they have a high cost. However, the cost recorded in feature usage for those calls is 2 cents. We believe that is not the actual cost passed on to the end customer, so the figure being tracked does not reflect what the call actually costs.</p>
+        <p>In addition, the cost is not shown to the user before placing the call.</p>
       </div>
       <div class="issue-imgs">
         <img src="images/image23.png" alt="Call icon available in the chat header">

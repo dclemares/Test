@@ -524,15 +524,15 @@
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.1</div>
-        <div class="issue-title">El coste del SMS mostrado es de 2 céntimos y no parece el real repercutido</div>
+        <div class="issue-title">No se muestra el coste del SMS al usuario</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
       <div class="issue-body">
-        <p>El coste por SMS que aparece en la interfaz es de 2 céntimos. Creemos que ese no es el coste real repercutido al cliente final, por lo que el importe mostrado no refleja lo que realmente se está cobrando ni lo que asume el cliente.</p>
+        <p>La interfaz no indica el coste por SMS, ni unitario ni acumulado, antes ni después del envío.</p>
       </div>
       <div class="issue-imgs">
-        <img src="images/image12.png" alt="Coste SMS mostrado como 2 céntimos">
-        <img src="images/image14.png" alt="Coste SMS mostrado como 2 céntimos 2">
+        <img src="images/image12.png" alt="Coste SMS no visible">
+        <img src="images/image14.png" alt="Coste SMS no visible 2">
       </div>
     </div>
 
@@ -569,15 +569,12 @@
     <div class="issue">
       <div class="issue-head">
         <div class="issue-num">2.4</div>
-        <div class="issue-title">Llamadas desde el dashboard sin coste mostrado ni registrado</div>
+        <div class="issue-title">El coste de las llamadas en feature usage es de 2 céntimos y no parece el real repercutido</div>
         <span class="severity-pill sev-critical">Critical</span>
       </div>
       <div class="issue-body">
-        <p>Es posible realizar llamadas telefónicas desde el dashboard. Esta acción tiene un coste elevado pero:</p>
-        <ul>
-          <li>El coste no se muestra al usuario antes de la llamada.</li>
-          <li>No está añadida a feature usage para su cobro.</li>
-        </ul>
+        <p>Las llamadas telefónicas se pueden realizar desde el dashboard y tienen un coste elevado. Sin embargo, el coste que aparece registrado en feature usage para esas llamadas es de 2 céntimos. Creemos que ese no es el coste real repercutido al cliente final, por lo que el importe que se está contabilizando no refleja lo que realmente cuesta la llamada.</p>
+        <p>Adicionalmente, el coste tampoco se muestra al usuario antes de realizar la llamada.</p>
       </div>
       <div class="issue-imgs">
         <img src="images/image23.png" alt="Icono de llamada disponible en el header del chat">
