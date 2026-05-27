@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INBOX – Testing Issues Report</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a1f29;
+    --panel-2: #232a36;
+    --border: #2e3744;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #ff6a3d;
+    --accent-2: #ffb199;
+    --critical: #ef4444;
+    --high: #f59e0b;
+    --medium: #3b82f6;
+    --low: #10b981;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  header {
+    padding: 48px 32px 32px;
+    background: linear-gradient(135deg, #1a1f29 0%, #0f1419 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    letter-spacing: -0.5px;
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .stat .num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat .label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .toc h2 { margin: 0 0 12px; font-size: 16px; }
+  .toc ol { margin: 0; padding-left: 20px; }
+  .toc a { color: var(--accent-2); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  section.category {
+    margin-bottom: 48px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .category-header {
+    padding: 20px 28px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .category-header h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge.count { background: var(--accent); color: #0f1419; }
+  .badge.critical { background: var(--critical); color: white; }
+  .badge.high { background: var(--high); color: #0f1419; }
+  .badge.medium { background: var(--medium); color: white; }
+  .badge.low { background: var(--low); color: #0f1419; }
+
+  .issue {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .issue:last-child { border-bottom: none; }
+  .issue-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .issue-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .issue-title {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .issue-body {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 8px 0 12px 40px;
+  }
+  .issue-imgs {
+    margin-left: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .issue-imgs img {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: zoom-in;
+    transition: transform 0.15s ease;
+  }
+  .issue-imgs img:hover { transform: scale(1.02); }
+
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    cursor: zoom-out;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 32px;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container" style="padding:0;">
+    <h1>INBOX – Testing Issues Report</h1>
+    <p>Análisis del feedback de QA del módulo INBOX. Issues agrupados por categoría con evidencias visuales.</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="summary">
+    <div class="stat"><div class="num">38</div><div class="label">Issues totales</div></div>
+    <div class="stat"><div class="num">8</div><div class="label">Categorías</div></div>
+    <div class="stat"><div class="num">26</div><div class="label">Capturas</div></div>
+    <div class="stat"><div class="num">12</div><div class="label">Críticos</div></div>
+  </div>
+
+  <nav class="toc">
+    <h2>Índice de categorías</h2>
+    <ol>
+      <li><a href="#settings">Página de settings inicial</a></li>
+      <li><a href="#billing">Facturación y feature usage (PAYG)</a></li>
+      <li><a href="#chatroom">Creación de chat rooms</a></li>
+      <li><a href="#messages">Gestión de mensajes</a></li>
+      <li><a href="#scheduled">Mensajes calendarizados</a></li>
+      <li><a href="#reservation">Información de reservas y contactos</a></li>
+      <li><a href="#guestapp">Guest App y verificación</a></li>
+      <li><a href="#misc">UX general y otras observaciones</a></li>
+    </ol>
+  </nav>
+
+  <!-- =================== 1. SETTINGS =================== -->
+  <section class="category" id="settings">
+    <div class="category-header">
+      <h2>1. Página de settings inicial</h2>
+      <span class="badge count">5 issues</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.1</div>
+        <div class="issue-title">CTAs y header se quedan ocultos o semi ocultos</div>
+      </div>
+      <div class="issue-body">Los CTAs se quedan ocultos o semi ocultos. Lo mismo pasa con el header, se tapa con el banner del trial.</div>
+      <div class="issue-imgs">
+        <img src="images/image4.png" alt="CTAs ocultos">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.2</div>
+        <div class="issue-title">"Chat with guest in guestapp" no funciona</div>
+      </div>
+      <div class="issue-body">Al activarlo en la guestapp continuamente indica que debe registrarse el huésped principal para usar el chat. No debería, porque podría tener una pregunta sobre el form. Aún registrando al leader, sigue mostrando el mismo mensaje.</div>
+      <div class="issue-imgs">
+        <img src="images/image10.png" alt="Chat with guest error">
+        <img src="images/image1.png" alt="Chat with guest error 2">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.3</div>
+        <div class="issue-title">No se contemplan los custom emails</div>
+      </div>
+      <div class="issue-body">Si alguien tiene un custom email añadido no da la opción para seleccionarlo. Aparece un texto "custom email" que no tiene sentido. Lo del property name puede confundir, ya que este alias es para todas las propiedades.</div>
+      <div class="issue-imgs">
+        <img src="images/image2.png" alt="Custom emails">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.4</div>
+        <div class="issue-title">Falta lógica con comunicaciones a nivel propiedad</div>
+      </div>
+      <div class="issue-body">Lógica de INBOX no está interconectada con la de comunicaciones de la propiedad. Se puede activar SMS/WhatsApp en INBOX pero en la propiedad no estar conectada. Deberíamos eliminar los settings a nivel propiedad si no tienen ninguna función.</div>
+      <div class="issue-imgs">
+        <img src="images/image8.png" alt="Comunicaciones propiedad">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.5</div>
+        <div class="issue-title">Sección visible en guestapp sin estar habilitada</div>
+      </div>
+      <div class="issue-body">Se muestra la sección en la guestapp sin haberla habilitado a nivel configuración de inbox.</div>
+      <div class="issue-imgs">
+        <img src="images/image13.png" alt="Sección guestapp sin habilitar">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 2. BILLING =================== -->
+  <section class="category" id="billing">
+    <div class="category-header">
+      <h2>2. Facturación y feature usage (PAYG)</h2>
+      <span class="badge count">5 issues</span>
+      <span class="badge critical">Critical</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.1</div>
+        <div class="issue-title">No se muestra el coste del SMS</div>
+      </div>
+      <div class="issue-body">No hay lógica para meter el coste del mantenimiento en el feature usage para cobrarlo.</div>
+      <div class="issue-imgs">
+        <img src="images/image12.png" alt="Coste SMS">
+        <img src="images/image14.png" alt="Coste SMS 2">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.2</div>
+        <div class="issue-title">No se muestra el coste de WhatsApp ni por mensaje</div>
+      </div>
+      <div class="issue-body">Muestra que el coste de los WhatsApps los paga el propietario a través de Meta. No queda muy claro el flujo.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.3</div>
+        <div class="issue-title">PAYG: no obliga a top up antes de activar funcionalidad</div>
+      </div>
+      <div class="issue-body">Si se elige una funcionalidad con PAYG (WhatsApp o SMS) debería pedir realizar un top up antes de activar. Ahora mismo no lo hace y permite utilizarla sin fondos.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.4</div>
+        <div class="issue-title">No hay uso de funcionalidad añadido a feature usage</div>
+      </div>
+      <div class="issue-body">No existe ningún uso de la funcionalidad añadido a feature usage para cobrar por su uso.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.5</div>
+        <div class="issue-title">Llamadas desde el dashboard sin coste asociado</div>
+      </div>
+      <div class="issue-body">Se pueden realizar llamadas desde el dashboard (por número de teléfono). Esto tendrá un coste elevado, no está añadido a feature usage para cobrar, y tampoco muestra qué coste tiene.</div>
+    </div>
+  </section>
+
+  <!-- =================== 3. CHAT ROOM =================== -->
+  <section class="category" id="chatroom">
+    <div class="category-header">
+      <h2>3. Creación de chat rooms</h2>
+      <span class="badge count">7 issues</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.1</div>
+        <div class="issue-title">Nomenclatura: "guest" debería ser "reserva"</div>
+      </div>
+      <div class="issue-body">No lo llamaría "guest", sino "reserva".</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.2</div>
+        <div class="issue-title">Info de los boxes no es la más adecuada para localizar una reserva</div>
+      </div>
+      <div class="issue-body">La información mostrada en las cajas no es la mejor para identificar una reserva concreta.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.3</div>
+        <div class="issue-title">Búsqueda limitada solo a nombre del leader</div>
+      </div>
+      <div class="issue-body">Solo busca por nombre del leader. No por id de reserva, external id, fecha ni nombre de la propiedad.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.4</div>
+        <div class="issue-title">Paginación incorrecta: muestra 10000000 páginas</div>
+      </div>
+      <div class="issue-body">Indica que hay 10.000.000 de páginas cuando solo debería mostrar 1 porque no hay más reservas.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.5</div>
+        <div class="issue-title">UI no escala con muchas reservas</div>
+      </div>
+      <div class="issue-body">La UI de esta página cuando se carguen todas las reservas de una cuenta (ejemplo: 100) complicará muchísimo el uso.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.6</div>
+        <div class="issue-title">CTAs inferiores cortados</div>
+      </div>
+      <div class="issue-body">Los CTAs de abajo están cortados.</div>
+      <div class="issue-imgs">
+        <img src="images/image25.png" alt="CTAs cortados">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.7</div>
+        <div class="issue-title">Chat con vendor: no reutiliza info, no redirige, tarda en aparecer</div>
+      </div>
+      <div class="issue-body">Se puede crear un chat con el vendor pero si ya hay vendors creados no se puede reutilizar la información. Al crear el chat no te redirige a él y tarda bastante en aparecer en el cajón de vendors del menú lateral.</div>
+      <div class="issue-imgs">
+        <img src="images/image22.png" alt="Chat con vendor">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 4. MESSAGES =================== -->
+  <section class="category" id="messages">
+    <div class="category-header">
+      <h2>4. Gestión de mensajes</h2>
+      <span class="badge count">8 issues</span>
+      <span class="badge critical">Critical</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.1</div>
+        <div class="issue-title">Tus mensajes no se asignan a ti ni los visualizas</div>
+      </div>
+      <div class="issue-body">Los mensajes que tú creas dentro de tu cuenta no se asignan a ti y no los visualizas.</div>
+      <div class="issue-imgs">
+        <img src="images/image3.png" alt="Mensajes no asignados">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.2</div>
+        <div class="issue-title">Mensajes no se guardan con múltiples estados</div>
+      </div>
+      <div class="issue-body">Parece que los mensajes solo pueden tener un único status. Por ejemplo, no puede estar en "all messages" y "priority" simultáneamente. Esto provoca que la carpeta "all messages" esté vacía si se marca como priority.</div>
+      <div class="issue-imgs">
+        <img src="images/image9.png" alt="Estados mensajes">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.3</div>
+        <div class="issue-title">Respuestas por email no aparecen en INBOX</div>
+      </div>
+      <div class="issue-body">Un huésped puede responder a un correo enviado por inbox y su respuesta no aparece en inbox.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.4</div>
+        <div class="issue-title">Cambio de canales sin notificar consecuencias</div>
+      </div>
+      <div class="issue-body">Se puede cambiar de correo, número de teléfono o WhatsApp en cualquier momento. No notifica los problemas que esto puede ocasionar ni hay lógica que controle las consecuencias.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.5</div>
+        <div class="issue-title">Respuestas SMS no aparecen en INBOX</div>
+      </div>
+      <div class="issue-body">Se puede responder al SMS y su respuesta no aparece en inbox.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.6</div>
+        <div class="issue-title">Botones semi ocultos al mandar mensajes</div>
+      </div>
+      <div class="issue-body">Los botones están semi ocultos a la hora de mandar mensajes, igual que el botón de configuración.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.7</div>
+        <div class="issue-title">Permite enviar sin email/teléfono asociado a la reserva</div>
+      </div>
+      <div class="issue-body">Se permite enviar correos y SMS sin que una reserva tenga correo o teléfono añadido.</div>
+      <div class="issue-imgs">
+        <img src="images/image23.png" alt="Enviar sin email/teléfono">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.8</div>
+        <div class="issue-title">No hay opción de enviar solo a guestapp / PMS / OTA</div>
+      </div>
+      <div class="issue-body">No hay opción de mandar mensaje a la guestapp únicamente, o de mandar mensaje al PMS o OTA (Booking, Airbnb, etc.).</div>
+      <div class="issue-imgs">
+        <img src="images/image20.png" alt="Opciones canales">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 5. SCHEDULED =================== -->
+  <section class="category" id="scheduled">
+    <div class="category-header">
+      <h2>5. Mensajes calendarizados</h2>
+      <span class="badge count">4 issues</span>
+      <span class="badge medium">Medium</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.1</div>
+        <div class="issue-title">Deberían aparecer dentro de la sección de mensajes</div>
+      </div>
+      <div class="issue-body">Creo que deberían aparecer dentro de la sección de mensajes y no en una sección aparte.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.2</div>
+        <div class="issue-title">Campo "tu nombre" innecesario</div>
+      </div>
+      <div class="issue-body">Aparece tu nombre en el campo, lo cual no es necesario, ya que un mensaje calendarizado siempre va a ser tuyo.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.3</div>
+        <div class="issue-title">Desaparecen al hacer reload de la página</div>
+      </div>
+      <div class="issue-body">Cuando se hace reload de la página los mensajes calendarizados desaparecen.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.4</div>
+        <div class="issue-title">No se puede eliminar un calendarizado pendiente</div>
+      </div>
+      <div class="issue-body">No puedo eliminar un mensaje calendarizado que aún no se ha enviado.</div>
+      <div class="issue-imgs">
+        <img src="images/image15.png" alt="Eliminar calendarizado">
+        <img src="images/image26.png" alt="Eliminar calendarizado 2">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 6. RESERVATION =================== -->
+  <section class="category" id="reservation">
+    <div class="category-header">
+      <h2>6. Información de reservas y contactos</h2>
+      <span class="badge count">4 issues</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.1</div>
+        <div class="issue-title">Sin enlace a INBOX desde info de reserva</div>
+      </div>
+      <div class="issue-body">A nivel info reserva no hay un link que redirija a inbox, ni información, ni nada. Tampoco hay status que te informe a nivel landing de reservas. La información de comunicaciones no está actualizada con inbox.</div>
+      <div class="issue-imgs">
+        <img src="images/image7.png" alt="Info reserva sin link">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.2</div>
+        <div class="issue-title">Contact details: nombre incorrecto y campos no editables</div>
+      </div>
+      <div class="issue-body">No se puede añadir ni modificar la información desde contact details. Además pone "guest details" cuando debería ser "reservation details".</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.3</div>
+        <div class="issue-title">Mala gestión de teléfonos / correos sincronizados desde PMS</div>
+      </div>
+      <div class="issue-body">Cuando se crea una reserva desde el PMS se crea con un correo fake y sin SMS. Si un huésped luego añade su correo o SMS a nivel huésped, esta info actualizada no se utiliza; se sigue usando la sincronizada a nivel reserva, lo cual puede ocasionar problemas operativos.</div>
+      <div class="issue-imgs">
+        <img src="images/image17.png" alt="Gestión correos PMS">
+        <img src="images/image21.png" alt="Gestión correos PMS 2">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.4</div>
+        <div class="issue-title">Status del momento de la reserva para filtrar incorrectos</div>
+      </div>
+      <div class="issue-body">Los status del momento de la reserva para filtrar no parecen los correctos. Deberían ser: prechekin, chekin day, durante la estancia, post estancia.</div>
+    </div>
+  </section>
+
+  <!-- =================== 7. GUESTAPP =================== -->
+  <section class="category" id="guestapp">
+    <div class="category-header">
+      <h2>7. Guest App, IA y verificación</h2>
+      <span class="badge count">4 issues</span>
+      <span class="badge critical">Critical</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.1</div>
+        <div class="issue-title">Verificación de identidad excesiva y con error</div>
+      </div>
+      <div class="issue-body">¿Por qué para utilizar el chat tengo que verificar mi identidad? Demasiadas trabas. Además, al identificar mi identidad me devuelve error.</div>
+      <div class="issue-imgs">
+        <img src="images/image18.png" alt="Verificación identidad">
+        <img src="images/image19.png" alt="Error verificación">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.2</div>
+        <div class="issue-title">Error al escribir por la guestapp</div>
+      </div>
+      <div class="issue-body">Cuando intento escribir por la guestapp me da error.</div>
+      <div class="issue-imgs">
+        <img src="images/image6.png" alt="Error escribir guestapp">
+        <img src="images/image5.png" alt="Error escribir guestapp 2">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.3</div>
+        <div class="issue-title">La opción de la IA da "no response"</div>
+      </div>
+      <div class="issue-body">La opción de la IA da un "no response".</div>
+      <div class="issue-imgs">
+        <img src="images/image11.png" alt="IA no response">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.4</div>
+        <div class="issue-title">Idioma de respuestas predeterminadas incorrecto</div>
+      </div>
+      <div class="issue-body">En la landing dice que el sistema es lo suficientemente inteligente para saber en qué idioma está una reserva y responder en ese idioma. Probando con una reserva en español, las respuestas predeterminadas se envían en inglés (o el idioma del dashboard).</div>
+    </div>
+  </section>
+
+  <!-- =================== 8. MISC =================== -->
+  <section class="category" id="misc">
+    <div class="category-header">
+      <h2>8. UX general y otras observaciones</h2>
+      <span class="badge count">4 issues</span>
+      <span class="badge medium">Medium</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.1</div>
+        <div class="issue-title">Selector de time window del auto reply no funciona bien</div>
+      </div>
+      <div class="issue-body">El selector de time window del auto reply no funciona; tengo que hacer click en el icono del reloj para que se abra.</div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.2</div>
+        <div class="issue-title">Secciones "Booking notifications" y "Task" vacías y sin info</div>
+      </div>
+      <div class="issue-body">Tenemos dos secciones (booking notifications y task) pero no se pueden añadir ni notificaciones ni tareas. Tampoco se sabe qué notificaciones aparecen porque no hay info al respecto.</div>
+      <div class="issue-imgs">
+        <img src="images/image24.png" alt="Booking notifications y tasks">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.3</div>
+        <div class="issue-title">Opción de añadir notas mal ubicada</div>
+      </div>
+      <div class="issue-body">La opción para añadir notas está dentro de email y SMS, lo cual no parece la ubicación adecuada.</div>
+      <div class="issue-imgs">
+        <img src="images/image16.png" alt="Opción notas">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.4</div>
+        <div class="issue-title">Flujo de WhatsApp no probado</div>
+      </div>
+      <div class="issue-body">No se ha probado el flujo de WhatsApp porque requería crearse una cuenta en Meta.</div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Generado a partir de <code>INBOX tESTING PROBLEMS.docx</code> · Reporte de QA estructurado por categorías
+</footer>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+  document.querySelectorAll('.issue-imgs img').forEach(img => {
+    img.addEventListener('click', () => {
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lightbox-img');
+      lbImg.src = img.src;
+      lb.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
