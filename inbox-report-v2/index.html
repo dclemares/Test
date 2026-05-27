@@ -1299,7 +1299,7 @@
       low: document.getElementById('bucket-count-low')
     };
 
-    // Cache each issue: original parent, original next sibling, severity
+    // Cache each issue with a placeholder marking its original DOM position
     const issues = Array.from(document.querySelectorAll('section.category .issue')).map(el => {
       const pill = el.querySelector('.severity-pill');
       let sev = 'medium';
@@ -1309,12 +1309,9 @@
         else if (pill.classList.contains('sev-medium')) sev = 'medium';
         else if (pill.classList.contains('sev-low')) sev = 'low';
       }
-      return {
-        el,
-        sev,
-        originalParent: el.parentNode,
-        originalNext: el.nextElementSibling
-      };
+      const placeholder = document.createComment('issue-placeholder');
+      el.parentNode.insertBefore(placeholder, el);
+      return { el, sev, placeholder };
     });
 
     function applyFilters() {
@@ -1322,14 +1319,10 @@
       const sevWanted = sevFilter.value;
       document.body.classList.toggle('view-severity', mode === 'severity');
 
-      // Reset placement
       if (mode === 'category') {
+        // Restore each issue to its placeholder position
         issues.forEach(it => {
-          if (it.originalNext) {
-            it.originalParent.insertBefore(it.el, it.originalNext);
-          } else {
-            it.originalParent.appendChild(it.el);
-          }
+          it.placeholder.parentNode.insertBefore(it.el, it.placeholder.nextSibling);
         });
       } else {
         // Move issues into severity buckets
