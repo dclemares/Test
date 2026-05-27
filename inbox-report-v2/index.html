@@ -355,10 +355,10 @@
 <div class="container">
 
   <div class="summary">
-    <div class="stat"><div class="num" id="stat-total">53</div><div class="label">Issues totales</div></div>
+    <div class="stat"><div class="num" id="stat-total">54</div><div class="label">Issues totales</div></div>
     <div class="stat"><div class="num" id="stat-categories">11</div><div class="label">Categorías</div></div>
     <div class="stat"><div class="num" id="stat-captures">28</div><div class="label">Capturas únicas</div></div>
-    <div class="stat"><div class="num" id="stat-critical">14</div><div class="label">Críticos</div></div>
+    <div class="stat"><div class="num" id="stat-critical">15</div><div class="label">Críticos</div></div>
   </div>
 
   <div class="filters">
@@ -1014,7 +1014,7 @@
   <section class="category" id="guestapp">
     <div class="category-header">
       <h2>8. Guest App, IA y verificación de identidad</h2>
-      <span class="badge count">5 issues</span>
+      <span class="badge count">6 issues</span>
       <span class="badge critical">Critical</span>
     </div>
 
@@ -1083,6 +1083,19 @@
       <div class="issue-body">
         <p>La landing indica que el sistema detecta automáticamente el idioma de la reserva y responde en él. Sin embargo, al probar con una reserva en español, las respuestas predeterminadas se envían en inglés (o en el idioma configurado en el dashboard).</p>
       </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.6</div>
+        <div class="issue-title">No existe ningún lugar para subir la knowledge base que alimenta las respuestas inteligentes</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>El propio settings del auto-reply indica textualmente: <em>"When enabled, your inbox will automatically send intelligent responses to guest messages based on the property knowledge base. If the property has no knowledge base, the auto-reply won't work for that property."</em></p>
+        <p>Sin embargo, no existe ninguna sección — ni dentro de la propiedad, ni en INBOX, ni en ningún otro punto del dashboard — donde se pueda subir o gestionar esa documentación que el sistema dice utilizar para generar las respuestas inteligentes. La feature queda efectivamente inutilizable porque ninguna propiedad puede llegar a tener "knowledge base".</p>
+      </div>
+      <div class="impact-block"><strong>Impacto:</strong> el auto-reply inteligente es inalcanzable en la práctica. La condición para que funcione (tener knowledge base) no se puede cumplir desde ninguna interfaz del producto.</div>
     </div>
   </section>
 
