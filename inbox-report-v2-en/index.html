@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INBOX – Testing Issues Report v2</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a1f29;
+    --panel-2: #232a36;
+    --border: #2e3744;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #ff6a3d;
+    --accent-2: #ffb199;
+    --critical: #ef4444;
+    --high: #f59e0b;
+    --medium: #3b82f6;
+    --low: #10b981;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  header {
+    padding: 48px 32px 32px;
+    background: linear-gradient(135deg, #1a1f29 0%, #0f1419 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    letter-spacing: -0.5px;
+  }
+  header .subtitle {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .version-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--accent);
+    color: #0f1419;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-left: 12px;
+    vertical-align: middle;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .stat .num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat .label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .filters {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+  }
+  .filters .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .filters label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .filters select {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+  }
+  .filters select:hover { border-color: var(--accent); }
+  .filters select:focus { border-color: var(--accent); }
+  .filters .reset-btn {
+    background: transparent;
+    color: var(--accent-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .filters .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filters .count-info {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Severity view: hide categories, show flat list */
+  body.view-severity section.category .category-header { display: none; }
+  body.view-severity section.category { background: transparent; border: none; margin-bottom: 0; border-radius: 0; }
+  body.view-severity .issue { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; }
+  body.view-severity .issue:last-child { border-bottom: 1px solid var(--border); }
+  body.view-severity .notes-block { display: none; }
+  body.view-severity #severity-buckets { display: block; }
+  #severity-buckets { display: none; }
+  .sev-bucket-header {
+    margin: 28px 0 12px;
+    padding: 12px 18px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sev-bucket-header.crit { color: #ef4444; }
+  .sev-bucket-header.hi { color: #f59e0b; }
+  .sev-bucket-header.med { color: #60a5fa; }
+  .sev-bucket-header.lo { color: #10b981; }
+
+  .issue.is-hidden { display: none !important; }
+
+  .toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .toc h2 { margin: 0 0 12px; font-size: 16px; }
+  .toc ol { margin: 0; padding-left: 20px; }
+  .toc a { color: var(--accent-2); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  section.category {
+    margin-bottom: 48px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .category-header {
+    padding: 20px 28px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .category-header h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge.count { background: var(--accent); color: #0f1419; }
+  .badge.critical { background: var(--critical); color: white; }
+  .badge.high { background: var(--high); color: #0f1419; }
+  .badge.medium { background: var(--medium); color: white; }
+  .badge.low { background: var(--low); color: #0f1419; }
+
+  .issue {
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .issue:last-child { border-bottom: none; }
+  .issue-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .issue-num {
+    flex-shrink: 0;
+    min-width: 36px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .issue-title {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .severity-pill {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .sev-critical { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .sev-high { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .sev-medium { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .sev-low { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+
+  .issue-body {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 8px 0 0 48px;
+  }
+  .issue-body p { margin: 0 0 8px; }
+  .issue-body p:last-child { margin-bottom: 0; }
+  .issue-body ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+  }
+  .issue-body ul li { margin-bottom: 4px; }
+  .impact-block {
+    margin: 12px 0 0 48px;
+    padding: 10px 14px;
+    background: rgba(255,106,61,0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--accent-2);
+  }
+  .impact-block strong { color: var(--accent); }
+
+  .notes-block {
+    margin: 0 28px 24px;
+    padding: 14px 18px;
+    background: rgba(59,130,246,0.08);
+    border-left: 3px solid #3b82f6;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .notes-block .notes-title {
+    display: block;
+    font-weight: 600;
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .notes-block p { margin: 0 0 6px; color: var(--muted); }
+  .notes-block p:last-child { margin-bottom: 0; }
+
+  .issue-imgs {
+    margin-left: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .issue-imgs img {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: zoom-in;
+    transition: transform 0.15s ease;
+  }
+  .issue-imgs img:hover { transform: scale(1.02); }
+
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    cursor: zoom-out;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 32px;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container" style="padding:0;">
+    <h1>INBOX – Testing Issues Report <span class="version-tag">v2 · EN</span></h1>
+    <p class="subtitle">QA report for the INBOX module. Issues rewritten and broken down by category, with severity and impact.</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="summary">
+    <div class="stat"><div class="num" id="stat-total">54</div><div class="label">Total issues</div></div>
+    <div class="stat"><div class="num" id="stat-categories">11</div><div class="label">Categories</div></div>
+    <div class="stat"><div class="num" id="stat-captures">28</div><div class="label">Unique screenshots</div></div>
+    <div class="stat"><div class="num" id="stat-critical">15</div><div class="label">Critical</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="view-mode">View by</label>
+      <select id="view-mode">
+        <option value="category">Category</option>
+        <option value="severity">Severity</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="severity-filter">Severity</label>
+      <select id="severity-filter">
+        <option value="all">All</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <button type="button" class="reset-btn" id="reset-filters">Reset</button>
+    <span class="count-info" id="count-info"></span>
+  </div>
+
+  <div id="severity-buckets">
+    <div class="sev-bucket-header crit"><span>● Critical</span><span class="badge critical" id="bucket-count-critical">0</span></div>
+    <div id="bucket-critical"></div>
+    <div class="sev-bucket-header hi"><span>● High</span><span class="badge high" id="bucket-count-high">0</span></div>
+    <div id="bucket-high"></div>
+    <div class="sev-bucket-header med"><span>● Medium</span><span class="badge medium" id="bucket-count-medium">0</span></div>
+    <div id="bucket-medium"></div>
+    <div class="sev-bucket-header lo"><span>● Low</span><span class="badge low" id="bucket-count-low">0</span></div>
+    <div id="bucket-low"></div>
+  </div>
+
+  <nav class="toc">
+    <h2>Category index</h2>
+    <ol>
+      <li><a href="#settings">INBOX initial setup</a></li>
+      <li><a href="#billing">Billing, costs and feature usage (PAYG)</a></li>
+      <li><a href="#chatroom">Chat room creation and reservation search</a></li>
+      <li><a href="#vendors">Vendor chats</a></li>
+      <li><a href="#messages">Message management and traceability</a></li>
+      <li><a href="#scheduled">Scheduled messages</a></li>
+      <li><a href="#reservation">Reservation and contact integration</a></li>
+      <li><a href="#guestapp">Guest App, AI and identity verification</a></li>
+      <li><a href="#templates">Templates per property group</a></li>
+      <li><a href="#misc">Other UX observations</a></li>
+      <li><a href="#tasks">Tasks section</a></li>
+    </ol>
+  </nav>
+
+  <!-- =================== 1. SETTINGS =================== -->
+  <section class="category" id="settings">
+    <div class="category-header">
+      <h2>1. INBOX initial setup</h2>
+      <span class="badge count">6 issues</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.1</div>
+        <div class="issue-title">CTAs and header hidden by the trial banner</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>On the initial settings page the action buttons (CTAs) end up partially or fully hidden. The header also overlaps with the trial banner, making navigation harder.</p>
+      </div>
+      <div class="impact-block"><strong>Impact:</strong> the user may not find the main actions.</div>
+      <div class="issue-imgs">
+        <img src="images/image4.png" alt="CTAs hidden by trial banner">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.2</div>
+        <div class="issue-title">"Chat with guest in guestapp" requires leader registration even when already registered</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>When enabling the chat option in the guestapp, the system constantly shows a message saying the main guest must register to use the chat. This happens in two scenarios:</p>
+        <ul>
+          <li>Before registering the leader: it shouldn't be blocked, since the guest may have questions about the registration form itself.</li>
+          <li>After registering the leader: the message persists even though the guest is already registered correctly.</li>
+        </ul>
+      </div>
+      <div class="impact-block"><strong>Impact:</strong> the chat feature becomes unusable from the guestapp.</div>
+      <div class="issue-imgs">
+        <img src="images/image10.png" alt="Leader registration required message">
+        <img src="images/image1.png" alt="Persistent message after registering leader">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.3</div>
+        <div class="issue-title">Configured custom emails don't appear as selectable options</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>If a user already has custom emails configured, INBOX does not list them as available options for sending.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image2.png" alt="Custom email with no selector for configured ones">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.4</div>
+        <div class="issue-title">"Custom email" label lacks context and the property alias is confusing</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The label "custom email" appears with no clear meaning in the context where it is shown.</p>
+        <p>Additionally, the property name field is misleading: since it is an alias applied to all properties, showing it tied to one specific property doesn't make sense.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image2.png" alt="Custom email and property name">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.5</div>
+        <div class="issue-title">Communications settings duplicated between INBOX and the property</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The communications configuration in INBOX is not connected with the per-property communications configuration. SMS or WhatsApp can be enabled in INBOX even when they are not enabled at the property level.</p>
+        <p>Proposal: remove the per-property communications settings if they no longer serve a purpose, to avoid duplication and confusion.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image8.png" alt="Duplicated settings">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">1.6</div>
+        <div class="issue-title">A section is visible in the guestapp despite being disabled in INBOX</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The corresponding section is shown in the guestapp even when it has not been enabled in INBOX settings.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image13.png" alt="Section visible without being enabled">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 2. BILLING =================== -->
+  <section class="category" id="billing">
+    <div class="category-header">
+      <h2>2. Billing, costs and feature usage (PAYG)</h2>
+      <span class="badge count">6 issues</span>
+      <span class="badge critical">Critical</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.1</div>
+        <div class="issue-title">SMS cost is not shown to the user</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>The interface does not display the SMS cost (neither per unit nor cumulative) before or after sending.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image12.png" alt="SMS cost not visible">
+        <img src="images/image14.png" alt="SMS cost not visible 2">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.2</div>
+        <div class="issue-title">There is no logic to record the maintenance fee in feature usage</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>There is no defined flow for the maintenance fee to be counted within feature usage for billing purposes.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image12.png" alt="Monthly maintenance fee not recorded in feature usage">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.3</div>
+        <div class="issue-title">WhatsApp cost flow is unclear</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The cost of WhatsApp conversation windows and per-message charges is not shown.</p>
+        <p>In addition, the interface states that WhatsApp costs are paid by the host directly to Meta, but the full flow is not clear to the user (what is paid, to whom, and when).</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image14.png" alt="Connect WhatsApp Business with Meta flow">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.4</div>
+        <div class="issue-title">PAYG: no top up required before enabling paid features</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>When enabling a PAYG feature (WhatsApp or SMS), the system does not require a prior top up. The feature can be activated and used with no balance, which may leave messages unsent or unbilled.</p>
+      </div>
+      <div class="impact-block"><strong>Impact:</strong> financial and operational risk.</div>
+      <div class="issue-imgs">
+        <img src="images/image8.png" alt="PAYG channels enabled without top up">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.5</div>
+        <div class="issue-title">Feature usage is not tracked</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>INBOX feature usage is not being recorded in feature usage, so customers cannot be charged based on their consumption.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">2.6</div>
+        <div class="issue-title">Dashboard phone calls with no cost shown or recorded</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>Phone calls can be made from the dashboard. This action has a high cost but:</p>
+        <ul>
+          <li>The cost is not shown to the user before the call.</li>
+          <li>It is not added to feature usage for billing.</li>
+        </ul>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image23.png" alt="Call icon available in the chat header">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 3. CHAT ROOM =================== -->
+  <section class="category" id="chatroom">
+    <div class="category-header">
+      <h2>3. Chat room creation and reservation search</h2>
+      <span class="badge count">6 issues</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.1</div>
+        <div class="issue-title">Terminology: "guest" should be "reservation"</div>
+        <span class="severity-pill sev-low">Low</span>
+      </div>
+      <div class="issue-body">
+        <p>The term "guest" used in chat creation is ambiguous. It is more accurate to call it "reservation", since the unit being acted upon is the reservation.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image25.png" alt="Guest tab in chat room creation">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.2</div>
+        <div class="issue-title">The card information doesn't make it possible to identify the reservation</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The fields shown on the cards/boxes are not the best ones to visually locate a specific reservation. Key data points to differentiate them are missing.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image25.png" alt="Booking card with limited fields">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.3</div>
+        <div class="issue-title">Search is limited to the leader's name only</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>Currently the search only works by leader name. It should allow searching at least by:</p>
+        <ul>
+          <li>Reservation ID</li>
+          <li>External ID</li>
+          <li>Reservation date</li>
+          <li>Property name</li>
+        </ul>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image25.png" alt="Limited reservation search">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.4</div>
+        <div class="issue-title">Incorrect pagination: shows 10,000,000 pages</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The paginator reports 10,000,000 pages, when in reality only a single page should be shown given that there are no more reservations available.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image25.png" alt="Paginator with 10000000 pages">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.5</div>
+        <div class="issue-title">The UI doesn't scale with accounts that have many reservations</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The current design does not cover realistic scenarios where an account has dozens or hundreds of reservations (e.g. 100+). The experience becomes unworkable when loading all reservations in this view.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">3.6</div>
+        <div class="issue-title">Bottom CTAs are cut off</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The bottom action buttons are visually cut off, preventing them from being used properly.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image25.png" alt="Bottom CTAs cut off">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 4. VENDORS =================== -->
+  <section class="category" id="vendors">
+    <div class="category-header">
+      <h2>4. Vendor chats</h2>
+      <span class="badge count">3 issues</span>
+      <span class="badge medium">Medium</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.1</div>
+        <div class="issue-title">Existing vendor information is not reused</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>When creating a chat with a vendor, the information of vendors already created in the system is not leveraged. The user has to enter the data again.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image22.png" alt="Vendor chat creation">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.2</div>
+        <div class="issue-title">After creating the vendor chat, the user isn't redirected to it</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>When creating a chat with a vendor, the system does not automatically redirect to the newly created chat.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">4.3</div>
+        <div class="issue-title">The vendor chat takes time to appear in the side menu</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The newly created chat takes a noticeable amount of time to appear in the vendors drawer of the side menu, creating uncertainty about whether the creation actually completed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 5. MESSAGES =================== -->
+  <section class="category" id="messages">
+    <div class="category-header">
+      <h2>5. Message management and traceability</h2>
+      <span class="badge count">8 issues</span>
+      <span class="badge critical">Critical</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.1</div>
+        <div class="issue-title">Messages you create are not assigned to your user and are not displayed</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>Messages created from your own account are not attributed to you as the author, and are also not visible from your profile.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image3.png" alt="Unassigned messages">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.2</div>
+        <div class="issue-title">Messages only support a single simultaneous status</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>It looks like messages can only have one status at a time (priority, all messages, etc.) rather than supporting multiple ones.</p>
+        <p>As a result, marking a message as "priority" removes it from "all messages", which is not the expected behavior.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image3.png" alt="Mutually exclusive folders: Assigned, All, Priority, Snoozed">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.3</div>
+        <div class="issue-title">Guest email replies don't reach INBOX</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>If a guest replies to an email sent from INBOX, the reply does not appear within INBOX, breaking the conversation thread.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.4</div>
+        <div class="issue-title">Guest SMS replies don't reach INBOX</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>Replies sent by a guest via SMS do not appear in INBOX, causing the same traceability problem as with email.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.5</div>
+        <div class="issue-title">INBOX settings allow changing contact channels with no warning about consequences</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>From INBOX settings, the user can change the email, phone number or WhatsApp at any time. The system does not warn about the problems this can cause (for example, conversation history loss) and there is no logic in place to control these consequences.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.6</div>
+        <div class="issue-title">Send and settings buttons partially hidden</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>When composing a message, the send buttons and the settings button appear partially hidden, making them harder to use.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image9.png" alt="Send buttons covered by the dock">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.7</div>
+        <div class="issue-title">Emails and SMS can be sent even when the reservation has no email or phone</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The system lets you send emails and SMS even when the reservation has no email or phone number attached. It should block the send or warn the user.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image23.png" alt="Send without a valid recipient">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">5.8</div>
+        <div class="issue-title">No isolated channels (guestapp only, PMS only or OTA only)</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>There is no option to send a message through a single specific channel:</p>
+        <ul>
+          <li>Guestapp only.</li>
+          <li>PMS only.</li>
+          <li>OTA only (Booking, Airbnb, etc.).</li>
+        </ul>
+        <p>In addition, the access code may end up being sent to a PMS email that the user has no access to, or directly to a reservation with no email attached, with no warning or blocking from the system.</p>
+      </div>
+      <div class="impact-block"><strong>Impact:</strong> the guest may never receive the code and the operator is unaware.</div>
+      <div class="issue-imgs">
+        <img src="images/image20.png" alt="Limited channel selection">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 6. SCHEDULED =================== -->
+  <section class="category" id="scheduled">
+    <div class="category-header">
+      <h2>6. Scheduled messages</h2>
+      <span class="badge count">4 issues</span>
+      <span class="badge medium">Medium</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.1</div>
+        <div class="issue-title">They should be integrated inside the messages section</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>Scheduled messages currently live in a separate section. They should appear inside the general messages section, alongside the rest of the history.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image15.png" alt="Scheduled tab separated from Messages">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.2</div>
+        <div class="issue-title">Unnecessary "your name" field in the form</div>
+        <span class="severity-pill sev-low">Low</span>
+      </div>
+      <div class="issue-body">
+        <p>The form displays a field with your own name, which is redundant. A scheduled message is always created by the current user.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.3</div>
+        <div class="issue-title">Scheduled messages disappear when reloading the page</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>After a reload, the scheduled messages that were created are no longer displayed, which suggests they are not being persisted correctly or the view is not loading them.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">6.4</div>
+        <div class="issue-title">A pending scheduled message cannot be deleted</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>There is no way to cancel or delete a scheduled message before it is sent.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image15.png" alt="No delete option">
+        <img src="images/image26.png" alt="No delete option 2">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 7. RESERVATION =================== -->
+  <section class="category" id="reservation">
+    <div class="category-header">
+      <h2>7. Reservation and contact integration</h2>
+      <span class="badge count">5 issues</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.1</div>
+        <div class="issue-title">The reservation info doesn't link to INBOX</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>From the reservation info screen there is no link or direct access to INBOX. No related communications information is shown either.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image7.png" alt="Reservation info with no link to INBOX">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.2</div>
+        <div class="issue-title">The reservations landing doesn't show communication status</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The reservations list/landing does not include any status indicating the communications state for each reservation.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.3</div>
+        <div class="issue-title">Communications information is not in sync with INBOX</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The communications data displayed at the reservation level does not reflect what is actually happening in INBOX, leading to inconsistency between views.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image7.png" alt="Communications sent out of date at the reservation level">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.4</div>
+        <div class="issue-title">"Contact details": not editable and uses an incorrect label</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>From the contact details section, contact information cannot be added or modified.</p>
+        <p>In addition, the section title says "guest details" when it should be "reservation details", since the information refers to the reservation, not to the guest.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image17.png" alt="Guest Details with non-editable Contact Details">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">7.5</div>
+        <div class="issue-title">Poor prioritization between reservation (PMS) email/phone and the guest's own</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>Reservations created from the PMS arrive with a fake email and no SMS. When the guest later adds their real email or phone at the guest level, INBOX continues using the data synced at the reservation level instead of the new ones.</p>
+      </div>
+      <div class="impact-block"><strong>Impact:</strong> messages sent to wrong or non-existent recipients.</div>
+      <div class="issue-imgs">
+        <img src="images/image17.png" alt="PMS vs guest email handling">
+        <img src="images/image21.png" alt="PMS vs guest email handling 2">
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== 8. GUESTAPP =================== -->
+  <section class="category" id="guestapp">
+    <div class="category-header">
+      <h2>8. Guest App, AI and identity verification</h2>
+      <span class="badge count">6 issues</span>
+      <span class="badge critical">Critical</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.1</div>
+        <div class="issue-title">Identity verification required to use the chat</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>To be able to use the chat, the guest is forced to verify their identity. This adds unnecessary friction to a basic conversational support feature.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image18.png" alt="Identity verification">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.2</div>
+        <div class="issue-title">The identity verification process returns an error</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>Even after completing identity verification, the system responds with an error, preventing the user from continuing.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image19.png" alt="Verification error">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.3</div>
+        <div class="issue-title">Error when writing messages from the guestapp</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>When trying to compose a message from the guestapp, the system throws an error and does not allow the user to continue.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image6.png" alt="Error when writing in the guestapp">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.4</div>
+        <div class="issue-title">The AI option returns "no response"</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>When using the AI feature, it returns a "no response" without generating any useful content.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image11.png" alt="AI with no response">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.5</div>
+        <div class="issue-title">Default replies don't respect the reservation language</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The landing states that the system automatically detects the reservation language and replies in it. However, when testing with a Spanish reservation, default replies are sent in English (or in whichever language is configured in the dashboard).</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">8.6</div>
+        <div class="issue-title">There's nowhere to upload the knowledge base that powers intelligent replies</div>
+        <span class="severity-pill sev-critical">Critical</span>
+      </div>
+      <div class="issue-body">
+        <p>The auto-reply settings themselves state literally: <em>"When enabled, your inbox will automatically send intelligent responses to guest messages based on the property knowledge base. If the property has no knowledge base, the auto-reply won't work for that property."</em></p>
+        <p>However, there is no section anywhere — not inside the property, not in INBOX, not in any other part of the dashboard — where this documentation that the system claims to use to generate intelligent replies can be uploaded or managed. The feature is effectively unusable because no property can ever actually have a "knowledge base".</p>
+      </div>
+      <div class="impact-block"><strong>Impact:</strong> the intelligent auto-reply is unreachable in practice. The condition for it to work (having a knowledge base) cannot be met from any interface in the product.</div>
+    </div>
+  </section>
+
+  <!-- =================== 9. TEMPLATES =================== -->
+  <section class="category" id="templates">
+    <div class="category-header">
+      <h2>9. Templates per property group</h2>
+      <span class="badge count">1 issue</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">9.1</div>
+        <div class="issue-title">Missing templates per property group</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>INBOX should allow defining templates per property group, in line with what already exists in virtually every other feature of the product.</p>
+        <p>A single account can have several synced properties with different visual and operational identities, so forcing a single global corporate look and feel for all communications is unrealistic.</p>
+      </div>
+      <div class="impact-block"><strong>Impact:</strong> accounts with multiple brands or property types cannot personalize their communications coherently.</div>
+    </div>
+  </section>
+
+  <!-- =================== 10. MISC =================== -->
+  <section class="category" id="misc">
+    <div class="category-header">
+      <h2>10. Other UX observations</h2>
+      <span class="badge count">4 issues</span>
+      <span class="badge medium">Medium</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">10.1</div>
+        <div class="issue-title">The auto reply time window selector doesn't open on click</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The time window selector inside the auto reply does not respond when clicking the field. It only opens when clicking specifically on the clock icon.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image21.png" alt="Time window with Start time / End time of the auto reply">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">10.2</div>
+        <div class="issue-title">"Booking notifications" and "Task": empty sections, no information and not operational</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The booking notifications and task sections do not let the user add notifications or tasks, and are not operational. They also don't indicate which notifications will appear or where they come from, leaving these sections without context.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image24.png" alt="Empty booking notifications and tasks">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">10.3</div>
+        <div class="issue-title">The "add notes" option lives inside email and SMS</div>
+        <span class="severity-pill sev-low">Low</span>
+      </div>
+      <div class="issue-body">
+        <p>Notes are managed from inside the email and SMS sections, which doesn't seem like the most logical location for a feature that should cut across the conversation.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image16.png" alt="Notes option in the wrong place">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">10.4</div>
+        <div class="issue-title">Incorrect filter statuses for the moment of the reservation</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The available statuses to filter by moment of the reservation are not the most appropriate. They should reflect the real lifecycle:</p>
+        <ul>
+          <li>Pre check-in</li>
+          <li>Check-in day</li>
+          <li>During the stay</li>
+          <li>Post stay</li>
+        </ul>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image5.png" alt="Current filters: Checking-in Today / Checking-out Today">
+      </div>
+    </div>
+
+    <div class="notes-block">
+      <span class="notes-title">Note · WhatsApp flow not tested</span>
+      <p>The WhatsApp flow is pending testing, as it required setting up a Meta account first.</p>
+    </div>
+
+    <div class="notes-block">
+      <span class="notes-title">Note · PMS / OTA flow not tested</span>
+      <p>The inbound/outbound message flow through the PMS or the OTA (Booking, Airbnb, etc.) has not been tested. The observations in this report are limited to the channels that were actually tested.</p>
+    </div>
+  </section>
+
+  <!-- =================== 11. TASKS =================== -->
+  <section class="category" id="tasks">
+    <div class="category-header">
+      <h2>11. Tasks section</h2>
+      <span class="badge count">5 issues</span>
+      <span class="badge high">High</span>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">11.1</div>
+        <div class="issue-title">The Tasks section is hidden in the navigation menu</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>The Tasks entry is not visible or stays hidden within the side navigation menu, making it difficult to find and access the feature.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image27.png" alt="Inbox sidebar with no Tasks option">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">11.2</div>
+        <div class="issue-title">A reservation cannot be linked to the task (and the "Chat room" wording is wrong)</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>When creating a task, the only available selector is "Chat room (optional)", which prevents linking the task directly to a reservation with its real operational context.</p>
+        <p>In addition, the unit the rest of the product is built around is the reservation, not the "chat room". The field should be renamed to "reservation" to keep terminology consistent.</p>
+      </div>
+      <div class="issue-imgs">
+        <img src="images/image28.png" alt="Task form with a 'Chat room' field instead of reservation">
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">11.3</div>
+        <div class="issue-title">Tasks assigned to a reservation don't appear in its message box inside Tasks</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>When a task is assigned to a reservation, that task is not shown in the corresponding message box for that reservation inside the Tasks section, breaking traceability between task and reservation.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">11.4</div>
+        <div class="issue-title">Tasks can only be sorted by creation date, with no alternative options</div>
+        <span class="severity-pill sev-medium">Medium</span>
+      </div>
+      <div class="issue-body">
+        <p>The task list is sorted only by creation date. There is no option to sort by other criteria such as priority, due date, assignee, status, etc., which limits its usefulness when there is a high volume of tasks.</p>
+      </div>
+    </div>
+
+    <div class="issue">
+      <div class="issue-head">
+        <div class="issue-num">11.5</div>
+        <div class="issue-title">When progress reaches 100%, the task doesn't move to "Completed" automatically</div>
+        <span class="severity-pill sev-high">High</span>
+      </div>
+      <div class="issue-body">
+        <p>When a task's progress reaches 100% (all its subitems checked), the task does not automatically move to the "Completed" status. The user has to update the status manually, which breaks the expected logic and leaves finished tasks not reflected as such.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  v2 · Rewritten copy for clarity and granular issue breakdown
+</footer>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+  document.querySelectorAll('.issue-imgs img').forEach(img => {
+    img.addEventListener('click', () => {
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lightbox-img');
+      lbImg.src = img.src;
+      lb.classList.add('active');
+    });
+  });
+
+  // ---- Filters & view toggle ----
+  (function () {
+    const viewMode = document.getElementById('view-mode');
+    const sevFilter = document.getElementById('severity-filter');
+    const resetBtn = document.getElementById('reset-filters');
+    const countInfo = document.getElementById('count-info');
+    const sevBuckets = {
+      critical: document.getElementById('bucket-critical'),
+      high: document.getElementById('bucket-high'),
+      medium: document.getElementById('bucket-medium'),
+      low: document.getElementById('bucket-low')
+    };
+    const sevCounts = {
+      critical: document.getElementById('bucket-count-critical'),
+      high: document.getElementById('bucket-count-high'),
+      medium: document.getElementById('bucket-count-medium'),
+      low: document.getElementById('bucket-count-low')
+    };
+
+    // Auto-compute summary stats from the DOM so they always match reality
+    (function recomputeStats() {
+      const allIssues = document.querySelectorAll('section.category .issue');
+      const total = allIssues.length;
+      const critical = document.querySelectorAll('section.category .issue .sev-critical').length;
+      const categories = document.querySelectorAll('section.category').length;
+      const imgs = new Set();
+      document.querySelectorAll('section.category .issue img[src]').forEach(i => imgs.add(i.getAttribute('src')));
+      const totalEl = document.getElementById('stat-total');
+      const critEl = document.getElementById('stat-critical');
+      const catEl = document.getElementById('stat-categories');
+      const capEl = document.getElementById('stat-captures');
+      if (totalEl) totalEl.textContent = total;
+      if (critEl) critEl.textContent = critical;
+      if (catEl) catEl.textContent = categories;
+      if (capEl) capEl.textContent = imgs.size;
+    })();
+
+    // Cache each issue with a placeholder marking its original DOM position
+    const issues = Array.from(document.querySelectorAll('section.category .issue')).map(el => {
+      const pill = el.querySelector('.severity-pill');
+      let sev = 'medium';
+      if (pill) {
+        if (pill.classList.contains('sev-critical')) sev = 'critical';
+        else if (pill.classList.contains('sev-high')) sev = 'high';
+        else if (pill.classList.contains('sev-medium')) sev = 'medium';
+        else if (pill.classList.contains('sev-low')) sev = 'low';
+      }
+      const placeholder = document.createComment('issue-placeholder');
+      el.parentNode.insertBefore(placeholder, el);
+      return { el, sev, placeholder };
+    });
+
+    function applyFilters() {
+      const mode = viewMode.value;
+      const sevWanted = sevFilter.value;
+      document.body.classList.toggle('view-severity', mode === 'severity');
+
+      if (mode === 'category') {
+        issues.forEach(it => {
+          it.placeholder.parentNode.insertBefore(it.el, it.placeholder.nextSibling);
+        });
+      } else {
+        issues.forEach(it => sevBuckets[it.sev].appendChild(it.el));
+      }
+
+      let visible = 0;
+      const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+      issues.forEach(it => {
+        const match = (sevWanted === 'all' || it.sev === sevWanted);
+        it.el.classList.toggle('is-hidden', !match);
+        if (match) {
+          visible++;
+          counts[it.sev]++;
+        }
+      });
+
+      Object.keys(sevCounts).forEach(k => { sevCounts[k].textContent = counts[k]; });
+      countInfo.textContent = `${visible} issue${visible === 1 ? '' : 's'} visible`;
+    }
+
+    viewMode.addEventListener('change', applyFilters);
+    sevFilter.addEventListener('change', applyFilters);
+    resetBtn.addEventListener('click', () => {
+      viewMode.value = 'category';
+      sevFilter.value = 'all';
+      applyFilters();
+    });
+
+    applyFilters();
+  })();
+</script>
+
+</body>
+</html>
