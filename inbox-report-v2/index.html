@@ -82,6 +82,85 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
+  .filters {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+  }
+  .filters .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .filters label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .filters select {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+  }
+  .filters select:hover { border-color: var(--accent); }
+  .filters select:focus { border-color: var(--accent); }
+  .filters .reset-btn {
+    background: transparent;
+    color: var(--accent-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .filters .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filters .count-info {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Severity view: hide categories, show flat list */
+  body.view-severity section.category .category-header { display: none; }
+  body.view-severity section.category { background: transparent; border: none; margin-bottom: 0; border-radius: 0; }
+  body.view-severity .issue { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; }
+  body.view-severity .issue:last-child { border-bottom: 1px solid var(--border); }
+  body.view-severity .notes-block { display: none; }
+  body.view-severity #severity-buckets { display: block; }
+  #severity-buckets { display: none; }
+  .sev-bucket-header {
+    margin: 28px 0 12px;
+    padding: 12px 18px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sev-bucket-header.crit { color: #ef4444; }
+  .sev-bucket-header.hi { color: #f59e0b; }
+  .sev-bucket-header.med { color: #60a5fa; }
+  .sev-bucket-header.lo { color: #10b981; }
+
+  .issue.is-hidden { display: none !important; }
+
   .toc {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -280,6 +359,39 @@
     <div class="stat"><div class="num">11</div><div class="label">Categorías</div></div>
     <div class="stat"><div class="num">28</div><div class="label">Capturas únicas</div></div>
     <div class="stat"><div class="num">14</div><div class="label">Críticos</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="view-mode">Ver por</label>
+      <select id="view-mode">
+        <option value="category">Categoría</option>
+        <option value="severity">Importancia</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="severity-filter">Severidad</label>
+      <select id="severity-filter">
+        <option value="all">Todas</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <button type="button" class="reset-btn" id="reset-filters">Reset</button>
+    <span class="count-info" id="count-info"></span>
+  </div>
+
+  <div id="severity-buckets">
+    <div class="sev-bucket-header crit"><span>● Críticos</span><span class="badge critical" id="bucket-count-critical">0</span></div>
+    <div id="bucket-critical"></div>
+    <div class="sev-bucket-header hi"><span>● High</span><span class="badge high" id="bucket-count-high">0</span></div>
+    <div id="bucket-high"></div>
+    <div class="sev-bucket-header med"><span>● Medium</span><span class="badge medium" id="bucket-count-medium">0</span></div>
+    <div id="bucket-medium"></div>
+    <div class="sev-bucket-header lo"><span>● Low</span><span class="badge low" id="bucket-count-low">0</span></div>
+    <div id="bucket-low"></div>
   </div>
 
   <nav class="toc">
@@ -1167,6 +1279,89 @@
       lb.classList.add('active');
     });
   });
+
+  // ---- Filters & view toggle ----
+  (function () {
+    const viewMode = document.getElementById('view-mode');
+    const sevFilter = document.getElementById('severity-filter');
+    const resetBtn = document.getElementById('reset-filters');
+    const countInfo = document.getElementById('count-info');
+    const sevBuckets = {
+      critical: document.getElementById('bucket-critical'),
+      high: document.getElementById('bucket-high'),
+      medium: document.getElementById('bucket-medium'),
+      low: document.getElementById('bucket-low')
+    };
+    const sevCounts = {
+      critical: document.getElementById('bucket-count-critical'),
+      high: document.getElementById('bucket-count-high'),
+      medium: document.getElementById('bucket-count-medium'),
+      low: document.getElementById('bucket-count-low')
+    };
+
+    // Cache each issue: original parent, original next sibling, severity
+    const issues = Array.from(document.querySelectorAll('section.category .issue')).map(el => {
+      const pill = el.querySelector('.severity-pill');
+      let sev = 'medium';
+      if (pill) {
+        if (pill.classList.contains('sev-critical')) sev = 'critical';
+        else if (pill.classList.contains('sev-high')) sev = 'high';
+        else if (pill.classList.contains('sev-medium')) sev = 'medium';
+        else if (pill.classList.contains('sev-low')) sev = 'low';
+      }
+      return {
+        el,
+        sev,
+        originalParent: el.parentNode,
+        originalNext: el.nextElementSibling
+      };
+    });
+
+    function applyFilters() {
+      const mode = viewMode.value;
+      const sevWanted = sevFilter.value;
+      document.body.classList.toggle('view-severity', mode === 'severity');
+
+      // Reset placement
+      if (mode === 'category') {
+        issues.forEach(it => {
+          if (it.originalNext) {
+            it.originalParent.insertBefore(it.el, it.originalNext);
+          } else {
+            it.originalParent.appendChild(it.el);
+          }
+        });
+      } else {
+        // Move issues into severity buckets
+        issues.forEach(it => sevBuckets[it.sev].appendChild(it.el));
+      }
+
+      // Apply severity filter (hide non-matching)
+      let visible = 0;
+      const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+      issues.forEach(it => {
+        const match = (sevWanted === 'all' || it.sev === sevWanted);
+        it.el.classList.toggle('is-hidden', !match);
+        if (match) {
+          visible++;
+          counts[it.sev]++;
+        }
+      });
+
+      Object.keys(sevCounts).forEach(k => { sevCounts[k].textContent = counts[k]; });
+      countInfo.textContent = `${visible} issue${visible === 1 ? '' : 's'} visibles`;
+    }
+
+    viewMode.addEventListener('change', applyFilters);
+    sevFilter.addEventListener('change', applyFilters);
+    resetBtn.addEventListener('click', () => {
+      viewMode.value = 'category';
+      sevFilter.value = 'all';
+      applyFilters();
+    });
+
+    applyFilters();
+  })();
 </script>
 
 </body>
